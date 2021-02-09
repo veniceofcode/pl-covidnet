@@ -1,3 +1,8 @@
+.git/
+.dockerignore
+Dockerfile
+
+*~
 *.DS_Store
 *.egg-info
 *.pyc
@@ -5,7 +10,10 @@ __pycache__
 docs/build
 .coverage
 htmlcov
+venv
 .docker
+
 .idea/
 .vscode/
-covidnet/models
+
+examples/

@@ -8,6 +8,8 @@ pl-covidnet
 .. image:: https://img.shields.io/docker/v/fnndsc/pl-covidnet?sort=semver
     :target: https://hub.docker.com/r/fnndsc/pl-covidnet
 
+.. image:: https://github.com/FNNDSC/pl-covidnet/workflows/ci/badge.svg
+    :target: https://github.com/FNNDSC/pl-covidnet/actions
 
 .. contents:: Table of Contents
 

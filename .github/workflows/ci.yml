@@ -20,15 +20,6 @@ on:
     branches: [ master ]
 
 jobs:
-  test:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-      - name: build
-        run: docker build -t "${GITHUB_REPOSITORY,,}" .
-      - name: nose tests
-        run: docker run "${GITHUB_REPOSITORY,,}" nosetests
-
   publish:
     if: github.event_name == 'push' || github.event_name == 'release'
     runs-on: ubuntu-20.04
@@ -98,7 +89,7 @@ jobs:
           tags: |
             ${{ steps.determine.outputs.dock_image }}
             localhost:5000/${{ steps.determine.outputs.dock_image }}
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/ppc64le
           push: true
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache

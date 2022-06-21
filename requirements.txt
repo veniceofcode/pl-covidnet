@@ -1,1 +1,2 @@
 chrisapp~=2.4.0
+dataclasses==0.8

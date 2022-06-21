@@ -12,7 +12,10 @@
 
 import os
 import sys
+import copy
+from pathlib import Path
 from .inference import Inference
+from .mapper import PathMapper
 
 from chrisapp.base import ChrisApp
 
@@ -68,11 +71,12 @@ class Covidnet(ChrisApp):
                     optional     = True,
                     help         = 'Name of ckpt meta file',
                     default      = 'model.meta')
-        self.add_argument('--imagefile', 
-                    dest         = 'imagefile', 
-                    type         = str, 
-                    optional     = False,
-                    help         = 'Name of image file to infer from')
+        self.add_argument('--inputFileFilter',
+                    dest         = 'inputFileFilter',
+                    type         = str,
+                    optional     = True,
+                    help         = 'Input file filter',
+                    default      = '**/*.jpg')
         self.add_argument('--in_tensorname', 
                     dest         = 'in_tensorname', 
                     type         = str, 
@@ -102,7 +106,6 @@ class Covidnet(ChrisApp):
         """
         Define the code to be run by this plugin app.
         """
-        # python covidnet.py inputimage output --imagefile ex-covid.jpeg
         print(Gstr_title)
         print('Version: %s' % self.get_version())
         all_three_models = [
@@ -126,8 +129,21 @@ class Covidnet(ChrisApp):
             options.weightspath = model['weightspath']
             options.ckptname = model['ckptname']
             options.modelused = model['modelused']
-            infer_obj = Inference(options)
-            infer_obj.infer()
+
+            mapper = PathMapper.file_mapper(
+                input_dir=Path(options.inputdir),
+                output_dir=Path(options.outputdir),
+                glob=options.inputFileFilter,
+            )
+            for input_file, output_file in mapper:
+                suboptions = copy.copy(options)
+                suboptions.imagefile = str(input_file.name)
+                suboptions.inputdir = str(input_file.parent)
+                suboptions.outputdir = str(output_file)
+                output_file.mkdir(parents=True)
+
+                infer_obj = Inference(suboptions)
+                infer_obj.infer()
 
     def show_man_page(self):
         """

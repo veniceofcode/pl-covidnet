@@ -1,25 +1,18 @@
-FROM alpine:latest as download
 
-WORKDIR /tmp
-ADD https://fnndsc.childrens.harvard.edu/COVID-Net/models/20200727/selected_models.tar.gz /tmp/models.tar.gz
-RUN ["tar", "xf", "models.tar.gz"]
+# Use the base image
+FROM quay.io/opendatahub-contrib/workbench-images:cuda-jupyter-tensorflow-c9s-py311_2023c_latest
 
-FROM docker.io/fnndsc/tensorflow:1.15.3
+# Install necessary dependencies
+RUN pip install tensorflow onnx onnxruntime boto3
 
-ENV DEBIAN_FRONTEND=noninteractive
+# Copy the Python script into the container
+COPY model.py /workspace/
 
-# install python dependencies using apt
-# for support on non-x86_64 architectures such as PowerPC
-RUN apt-get update \
-    && apt-get install -y python3-opencv \
-    && rm -rf /var/lib/apt/lists/*
+# Set up environment variables for MinIO server access
+ENV MINIO_ENDPOINT=https://minio-s3-minio-operator.apps.cluster-8hg7m.sandbox258.opentlc.com
+ENV MINIO_ACCESS_KEY=key
+ENV MINIO_SECRET_KEY=secret
+ENV AWS_REGION=us-east
 
-COPY --from=download /tmp/models /usr/local/lib/covidnet
-
-WORKDIR /usr/local/src
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY . .
-RUN pip install .
-
-CMD ["covidnet", "--help"]
+# Run the Python script when the container starts
+CMD ["python", "/workspace/model.py"]
